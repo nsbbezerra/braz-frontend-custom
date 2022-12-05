@@ -30,6 +30,7 @@ import Toast from "../../../components/layout/Toast";
 import * as AlertDialog from "@radix-ui/react-alert-dialog";
 import Carousel from "../../../components/layout/Carousel";
 import * as Dialog from "@radix-ui/react-dialog";
+import { api } from "../../../configs";
 
 interface ProductProps {
   id: string;
@@ -47,8 +48,7 @@ interface ToastInfo {
 
 const Produto: NextPage<Props> = ({ information }) => {
   const calcPrice = (price: number) => {
-    let transform = price / 100;
-    return transform.toLocaleString("pt-br", {
+    return parseFloat(String(price)).toLocaleString("pt-br", {
       style: "currency",
       currency: "BRL",
     });
@@ -106,12 +106,12 @@ const Produto: NextPage<Props> = ({ information }) => {
       ...cart,
       {
         id: nanoid(),
-        category: information.product?.categories[0].name || "",
+        category: information.product?.category.name || "",
         product: information.product?.id || "",
         name: information.product?.name || "",
         quantity,
         size: size,
-        thumbnail: information.product?.images[0].url || "",
+        thumbnail: information.product?.thumbnail || "",
         total: price,
       },
     ]);
@@ -136,26 +136,17 @@ const Produto: NextPage<Props> = ({ information }) => {
       />
       <HeadApp title={`${information.product?.name} | Braz Camiseteria`} />
       <Header />
-      {!information.banners ? (
+      {!information.banner ? (
         ""
       ) : (
         <>
-          <div className="w-full relative hidden sm:block">
+          <div className="w-full relative">
             <Image
-              src={information.banners.desktop.url}
+              src={information.banner.banner}
               width={1920}
               height={461}
               alt="Braz Multimidia banner"
               layout="responsive"
-            />
-          </div>
-          <div className="w-full relative block sm:hidden">
-            <Image
-              src={information.banners.mobile.url}
-              alt="Braz Multimidia"
-              layout="responsive"
-              width={550}
-              height={775}
               objectFit="cover"
             />
           </div>
@@ -182,7 +173,7 @@ const Produto: NextPage<Props> = ({ information }) => {
         <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] lg:grid-cols-[380px_1fr] gap-5 mt-5 justify-items-center">
           <div className="w-full rounded-md overflow-hidden h-fit max-w-sm">
             <Image
-              src={information.product?.images[0].url || ""}
+              src={information.product?.thumbnail || ""}
               width={600}
               height={600}
               layout="responsive"
@@ -195,17 +186,17 @@ const Produto: NextPage<Props> = ({ information }) => {
               {information.product?.name}
             </strong>
             <p className="md:text-lg mb-3">
-              {information.product?.description}
+              {information.product?.shortDescription}
             </p>
             <p>ID: {information.product?.id}</p>
             <p>
               Categoria:{" "}
               <Link
-                href={`/produtos/${information.product?.categories[0].id}`}
+                href={`/produtos/${information.product?.category.id}`}
                 passHref
               >
                 <a className="hover:underline cursor-pointer text-sky-700">
-                  {information.product?.categories[0].name}
+                  {information.product?.category.name}
                 </a>
               </Link>
             </p>
@@ -228,9 +219,9 @@ const Produto: NextPage<Props> = ({ information }) => {
                     onChange={(e) => setSize(e.target.value)}
                   >
                     <option value={""}>Selecione um tamanho</option>
-                    {information.productSizeVariants.map((size) => (
-                      <option value={size.name} key={size.id}>
-                        {size.name}
+                    {information.product?.Sizes.map((size) => (
+                      <option value={size.size} key={size.id}>
+                        {size.size}
                       </option>
                     ))}
                   </select>
@@ -280,7 +271,7 @@ const Produto: NextPage<Props> = ({ information }) => {
               <div
                 className="html-parsed"
                 dangerouslySetInnerHTML={{
-                  __html: information.product?.information?.html || "",
+                  __html: information.product?.description || "",
                 }}
               />
             </Tabs.Content>
@@ -291,18 +282,18 @@ const Produto: NextPage<Props> = ({ information }) => {
                 </strong>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 container mx-auto max-w-3xl mt-5 items-start gap-5">
-                  {information.product?.modelings.map((mod) => (
+                  {information.product?.Modeling.map((mod) => (
                     <div
                       className="w-full flex flex-col justify-center items-center"
                       key={mod.id}
                     >
                       <div className="w-3/4 max-w-[200px]">
                         <Image
-                          src={mod.image.url}
+                          src={mod.image}
                           alt="Modelagem svg"
                           layout="responsive"
                           width={400}
-                          height={450}
+                          height={400}
                         />
                       </div>
                       <div className="p-2 text-center">
@@ -314,15 +305,14 @@ const Produto: NextPage<Props> = ({ information }) => {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 container mx-auto max-w-3xl mt-5 items-start gap-5">
-                  {information.product?.measurements.map((mea) => (
+                  {information.product?.SizeTables.map((mea) => (
                     <div
                       className="flex flex-col justify-center items-center"
                       key={mea.id}
                     >
-                      <strong className="uppercase">{mea.title}</strong>
                       <div className="w-full max-w-sm">
                         <Image
-                          src={mea.image.url}
+                          src={mea.table}
                           alt="Modelagem svg"
                           layout="responsive"
                           width={400}
@@ -354,48 +344,28 @@ const Produto: NextPage<Props> = ({ information }) => {
             CATÁLOGOS DE MODELOS PRONTOS
           </span>
           <div className="border-marinho-500 border-b-2 w-56" />
-        </div>
 
-        <Carousel
-          catalogs={information.product?.collections[0] || null}
-          product={information.product?.id || null}
-        />
+          <div className="grid grid-cols-4 gap-10 w-full mt-10">
+            {information.product?.Catalogs.map((cat) => (
+              <div
+                key={cat.id}
+                className="w-full rounded-md shadow overflow-hidden cursor-pointer hover:scale-105 transition-all delay-150"
+                onClick={() => handleImage(cat.image)}
+              >
+                <Image
+                  src={cat.image}
+                  alt="Modelagem svg"
+                  layout="responsive"
+                  width={300}
+                  height={300}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
 
         <Pedidos />
       </section>
-
-      <div className="bg-gray-50 w-full mt-10 py-10">
-        <div className="flex items-center flex-col gap-2 mb-10 w-full">
-          <span className="block heading text-marinho-500 text-center">
-            CONFIRA A QUALIDADE DOS NOSSOS PRODUTOS
-          </span>
-          <div className="border-marinho-500 border-b-2 w-56" />
-        </div>
-        <div className="container mx-auto px-5 xl:px-0 max-w-6xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
-          {information.portfolios.map((port) => (
-            <div
-              className="w-full rounded-md overflow-hidden shadow relative"
-              key={port.id}
-            >
-              <Image
-                src={port.image.url}
-                width={626}
-                height={417}
-                layout="responsive"
-                alt="Braz Multimidia"
-              />
-              <div className="absolute top-0 right-0 bottom-0 left-0 bg-black bg-opacity-50 flex justify-center items-center opacity-0 hover:opacity-100 transition-all">
-                <button
-                  className="text-gray-400 hover:text-white text-6xl p-2 rounded-2xl active:text-gray-400"
-                  onClick={() => handleImage(port.image.url)}
-                >
-                  <MagnifyingGlassPlus />
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
 
       <Footer />
 
@@ -436,15 +406,18 @@ const Produto: NextPage<Props> = ({ information }) => {
         <Dialog.Portal>
           <Dialog.Overlay className="overlay" />
           <Dialog.Content className="dialog-content p-2">
+            <Dialog.Close
+              className="bg-sky-700 hover:bg-sky-800 rounded-full px-4 h-8 flex items-center justify-center active:bg-sky-700 absolute right-5 top-5 z-50 text-white"
+              onClick={() => setPreview(!preview)}
+            >
+              <X /> Fechar
+            </Dialog.Close>
             <div className="dialog-body-img max-w-2xl">
-              <Dialog.Close className="bg-sky-700 hover:bg-sky-800 rounded-full w-7 h-7 flex items-center justify-center active:bg-sky-700 absolute right-3 top-3 z-10 text-white">
-                <X />
-              </Dialog.Close>
-              <div>
+              <div className="z-10">
                 <Image
                   src={url}
-                  width={626}
-                  height={417}
+                  width={300}
+                  height={300}
                   layout="responsive"
                   alt="Braz Multimidia"
                 />
@@ -460,9 +433,9 @@ const Produto: NextPage<Props> = ({ information }) => {
 export default Produto;
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const { data } = await clientQuery.query(FIND_PRODUCTS_PATH, {}).toPromise();
+  const { data } = await api.get("/fromProductPagePaths");
 
-  const products: ProductProps[] = data.products;
+  const products: ProductProps[] = data;
 
   const paths = products.map((prod) => {
     return { params: { product: prod.id } };
@@ -477,17 +450,13 @@ export const getStaticPaths: GetStaticPaths = async () => {
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const id = params?.product || "";
 
-  const { data } = await clientQuery
-    .query(FIND_PRODUCT_INFORMATION, { id })
-    .toPromise();
+  const { data } = await api.get(`/fromProductPage/${id}`);
 
   return {
     props: {
       information: {
-        banners: data.banners[0] || null,
+        banner: data.banner || null,
         product: data.product || null,
-        productSizeVariants: data.productSizeVariants || [],
-        portfolios: data.portfolios || [],
       },
     },
     revalidate: 60,

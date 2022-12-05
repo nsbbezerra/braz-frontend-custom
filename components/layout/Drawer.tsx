@@ -26,8 +26,7 @@ export default function Drawer({ isOpen, items, onClose }: Props) {
   const [total, setTotal] = useState<number>(0);
 
   const calcPrice = (price: number) => {
-    let transform = price / 100;
-    return transform.toLocaleString("pt-br", {
+    return parseFloat(String(price)).toLocaleString("pt-br", {
       style: "currency",
       currency: "BRL",
     });

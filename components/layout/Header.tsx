@@ -20,10 +20,19 @@ import { useQuery } from "urql";
 import { FIND_ALL_CATEGORIES } from "../../graphql/indexPage";
 import { CategoriesProps } from "../../types";
 import CartContext from "../../context/cart/cart";
+import Toast from "./Toast";
+import { isAxiosError } from "axios";
+import { api } from "../../configs";
 
 interface ProductProps {
   id: string;
   name: string;
+}
+
+interface ToastInfo {
+  title: string;
+  message: string;
+  type: "success" | "info" | "warning" | "error";
 }
 
 function Header() {
@@ -31,19 +40,38 @@ function Header() {
   const [openCart, setOpenCart] = useState<boolean>(false);
   const [categories, setCategories] = useState<CategoriesProps[]>([]);
   const [products, setProducts] = useState<ProductProps[]>([]);
+  const [fetching, setFetching] = useState<boolean>(false);
 
-  const [findCategoriesResults] = useQuery({
-    query: FIND_ALL_CATEGORIES,
+  const [toast, setToast] = useState<ToastInfo>({
+    title: "",
+    message: "",
+    type: "info",
   });
+  const [openToast, setOpenToast] = useState<boolean>(false);
 
-  const { data, fetching } = findCategoriesResults;
-
-  useEffect(() => {
-    if (data) {
+  async function findInformation() {
+    setFetching(true);
+    try {
+      const { data } = await api.get("/findProductsAndCategories");
       setCategories(data.categories);
       setProducts(data.products);
+      setFetching(false);
+    } catch (error) {
+      setFetching(false);
+      if (isAxiosError(error) && error.message) {
+        setToast({
+          message: error.response?.data.message,
+          title: "Erro",
+          type: "error",
+        });
+        setOpenToast(true);
+      }
     }
-  }, [data]);
+  }
+
+  useEffect(() => {
+    findInformation();
+  }, []);
 
   const MenuItems = () => (
     <div className="flex items-center flex-col lg:flex-row gap-1 lg:gap-0">
@@ -119,7 +147,7 @@ function Header() {
                         <Link href={`/produtos/catalogos/${cat.id}`} passHref>
                           <a className="menu-items-product uppercase">
                             <TShirt />
-                            {cat.name}
+                            <span className="line-clamp-1">{cat.name}</span>
                           </a>
                         </Link>
                       </div>
@@ -136,14 +164,18 @@ function Header() {
           <Phone /> Fale conosco
         </a>
       </Link>
-      <a className="menu-items-sim">
-        <TShirt /> Simulador
-      </a>
     </div>
   );
 
   return (
     <Fragment>
+      <Toast
+        title={toast.title}
+        message={toast.message}
+        onClose={setOpenToast}
+        open={openToast}
+        scheme={toast.type}
+      />
       <header className="w-full sticky top-0 min-h-fit shadow-lg bg-white bg-opacity-80 backdrop-blur-sm z-20">
         <div className="container mx-auto pl-5 lg:px-5 xl:px-0 max-w-6xl flex items-center justify-between h-14">
           <Link href={"/"} passHref>
@@ -160,7 +192,7 @@ function Header() {
           <div className="hidden lg:flex">
             <MenuItems />
             <button
-              className="w-14 h-14 bg-marinho-500 text-white flex justify-center items-center text-3xl relative hover:bg-marinho-700 active:bg-marinho-500"
+              className="w-14 h-14 bg-orange-500 text-white flex justify-center items-center text-3xl relative hover:bg-orange-700 active:bg-orange-500"
               onClick={() => setOpenCart(!openCart)}
             >
               <ShoppingCart />

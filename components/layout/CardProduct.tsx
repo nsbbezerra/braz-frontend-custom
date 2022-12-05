@@ -9,8 +9,7 @@ interface Props {
 
 export default function CardsProduct({ products }: Props) {
   const calcPrice = (price: number) => {
-    let transform = price / 100;
-    return transform.toLocaleString("pt-br", {
+    return parseFloat(String(price)).toLocaleString("pt-br", {
       style: "currency",
       currency: "BRL",
     });
@@ -29,7 +28,7 @@ export default function CardsProduct({ products }: Props) {
             <div className="card" key={prod.id}>
               <div>
                 <Image
-                  src={prod.images[0].url}
+                  src={prod.thumbnail}
                   width={600}
                   height={600}
                   layout="responsive"

@@ -15,33 +15,36 @@ import HeadApp from "../../components/layout/Head";
 import Header from "../../components/layout/Header";
 import * as Popover from "@radix-ui/react-popover";
 import Pedidos from "../../components/layout/Pedidos";
-import { clientQuery } from "../../lib/urql";
-import {
-  FIND_CATEGORIES_INFORMATION,
-  FIND_CATEGORIES_PATH,
-} from "../../graphql/products";
-import { CategoriesProps, ProductsPageProps } from "../../types";
+
+import { BannersProps, CategoriesProps } from "../../types";
 import Link from "next/link";
+import { api } from "../../configs";
+import { useRouter } from "next/router";
 
 interface Props {
-  information: ProductsPageProps;
+  banner: BannersProps;
+  categories: CategoriesProps[];
+  category: CategoriesProps;
 }
 
-const Produtos: NextPage<Props> = ({ information }) => {
+const Produtos: NextPage<Props> = ({ banner, categories, category }) => {
+  const { query } = useRouter();
+  const { product } = query;
+
   const Items = () => (
     <>
-      {!information ? (
+      {!categories ? (
         ""
       ) : (
         <>
-          {information.categories.length === 0 ? (
+          {categories.length === 0 ? (
             <div className="flex justify-center items-center flex-col gap-1">
               <Leaf className="text-3xl" />
               <span>Nada para mostrar</span>
             </div>
           ) : (
             <div className="p-1 flex flex-col gap-1">
-              {information.categories.map((cat) => (
+              {categories.map((cat) => (
                 <Link key={cat.id} href={`/produtos/${cat.id}`} passHref>
                   <a className="flex w-full items-center gap-2 text-marinho-500 font-semibold h-8 rounded-md hover:bg-marinho-500 hover:text-white active:bg-marinho-600 select-none px-4 cursor-pointer focus:outline-none focus:bg-marinho-500 focus:text-white uppercase">
                     <Tag />
@@ -58,28 +61,19 @@ const Produtos: NextPage<Props> = ({ information }) => {
 
   return (
     <Fragment>
-      <HeadApp title={`${information.category.name} | Braz Camiseteria`} />
+      <HeadApp title={`${category.name} | Braz Camiseteria`} />
       <Header />
-      {!information ? (
+      {!banner ? (
         ""
       ) : (
         <>
-          <div className="w-full relative hidden sm:block">
+          <div className="w-full relative">
             <Image
-              src={information.banners[0].desktop.url}
+              src={banner.banner}
               width={1920}
               height={461}
               alt="Braz Multimidia banner"
               layout="responsive"
-            />
-          </div>
-          <div className="w-full relative block sm:hidden">
-            <Image
-              src={information.banners[0].mobile.url}
-              alt="Braz Multimidia"
-              layout="responsive"
-              width={550}
-              height={775}
               objectFit="cover"
             />
           </div>
@@ -95,10 +89,10 @@ const Produtos: NextPage<Props> = ({ information }) => {
             </a>
           </Link>
           <CaretRight />
-          <Link href={`/produtos/${information.category.id}`}>
+          <Link href={`/produtos/${category.id}`}>
             <a className="flex items-center gap-2 cursor-pointer hover:underline uppercase">
               <TShirt />
-              {information.category.name}
+              {category.name}
             </a>
           </Link>
         </div>
@@ -127,7 +121,7 @@ const Produtos: NextPage<Props> = ({ information }) => {
             <Items />
           </div>
           <div>
-            <CardsProduct products={information.category.products || []} />
+            <CardsProduct products={category.Products || []} />
           </div>
         </div>
 
@@ -142,11 +136,9 @@ const Produtos: NextPage<Props> = ({ information }) => {
 export default Produtos;
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const { data } = await clientQuery
-    .query(FIND_CATEGORIES_PATH, {})
-    .toPromise();
+  const { data } = await api.get("/fromCategoriesPagePaths");
 
-  const categories: CategoriesProps[] = data.categories;
+  const categories: CategoriesProps[] = data;
 
   const paths = categories.map((cat) => {
     return { params: { product: cat.id } };
@@ -160,12 +152,13 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const id = params?.product || "";
-  const { data } = await clientQuery
-    .query(FIND_CATEGORIES_INFORMATION, { id })
-    .toPromise();
+  const { data } = await api.get(`/fromCategoriesPage/${id}`);
+
   return {
     props: {
-      information: data || null,
+      categories: data.categories || null,
+      banner: data.banner || null,
+      category: data.category || null,
     },
     revalidate: 60,
   };

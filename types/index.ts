@@ -5,21 +5,19 @@ type ImagesProps = {
 
 type BannersProps = {
   id: string;
-  desktop: ImagesProps;
-  mobile: ImagesProps;
+  banner: string;
   redirect?: string | null;
 };
 
 type CategoriesProps = {
   id: string;
   name: string;
-  image: ImagesProps;
+  thumbnail: string;
+  Products: ProductsProps[];
 };
 
 interface ImagesPagesProps {
   banners: BannersProps[];
-  simulatorImage: ImagesProps[];
-  imagesWhoIAm: ImagesProps[];
   categories: CategoriesProps[];
 }
 
@@ -34,12 +32,12 @@ interface ProductsProps {
   id: string;
   name: string;
   price: number;
-  images: ImagesProps[];
+  thumbnail: string;
 }
 
 interface CatalogProps {
   id: string;
-  images: ImagesProps[];
+  image: string;
 }
 
 type CategoriesPageProps = {
@@ -54,7 +52,7 @@ type CategoryProps = {
 };
 
 interface ProductsPageProps {
-  banners: BannersProps[];
+  banner: BannersProps;
   categories: CategoriesPageProps[];
   category: CategoryProps;
 }
@@ -63,31 +61,32 @@ type ModelingsProps = {
   id: string;
   title: string;
   description: string;
-  image: ImagesProps;
+  image: string;
 };
 
-type MeasurementsProps = {
+type SizesProps = {
   id: string;
-  title: string;
-  image: ImagesProps;
+  size: string;
 };
 
-type InformationProps = {
-  html: string;
+type SizeTablesProps = {
+  id: string;
+  table: string;
 };
 
 type ProductInformationProps = {
   id: string;
   name: string;
   description: string;
-  images: ImagesProps[];
-  categories: CategoriesProps[];
-  information?: InformationProps | null;
+  thumbnail: string;
+  category: CategoriesProps;
+  shortDescription?: string;
   price: number;
   video?: string | null;
-  modelings: ModelingsProps[];
-  measurements: MeasurementsProps[];
-  collections: CatalogProps[];
+  Modeling: ModelingsProps[];
+  Sizes: SizesProps[];
+  Catalogs: CatalogProps[];
+  SizeTables: SizeTablesProps[];
 };
 
 type ProductsSizeVariantsProps = {
@@ -102,10 +101,8 @@ type PortifolioProps = {
 };
 
 interface ProductInformationPageProps {
-  banners: BannersProps | null;
+  banner: BannersProps | null;
   product: ProductInformationProps | null;
-  productSizeVariants: ProductsSizeVariantsProps[];
-  portfolios: PortifolioProps[];
 }
 
 export type {
