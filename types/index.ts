@@ -19,6 +19,7 @@ type CategoriesProps = {
 interface ImagesPagesProps {
   banners: BannersProps[];
   categories: CategoriesProps[];
+  products: ProductsProps[];
 }
 
 type ProductsCategoryPageProps = {

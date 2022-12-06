@@ -4,8 +4,7 @@ import { Fragment } from "react";
 import Footer from "../components/layout/Footer";
 import HeadApp from "../components/layout/Head";
 import Header from "../components/layout/Header";
-import { FIND_OTHER_BANNER } from "../graphql/indexPage";
-import { clientQuery } from "../lib/urql";
+import { api } from "../configs";
 import { BannersProps } from "../types";
 
 interface Props {
@@ -25,23 +24,13 @@ const Who: NextPage<Props> = ({ banner }) => {
         ""
       ) : (
         <>
-          <div className="w-full relative hidden sm:block">
+          <div className="w-full relative">
             <Image
-              src={banner.desktop.url}
+              src={banner.banner}
               width={1920}
               height={461}
               alt="Braz Multimidia banner"
               layout="responsive"
-            />
-          </div>
-          <div className="w-full relative block sm:hidden">
-            <Image
-              src={banner.mobile.url}
-              alt="Braz Multimidia"
-              layout="responsive"
-              width={550}
-              height={775}
-              objectFit="cover"
             />
           </div>
         </>
@@ -109,11 +98,11 @@ const Who: NextPage<Props> = ({ banner }) => {
 export default Who;
 
 export const getStaticProps: GetStaticProps = async () => {
-  const { data } = await clientQuery.query(FIND_OTHER_BANNER, {}).toPromise();
+  const { data } = await api.get("/fromOthersPageBanner");
 
   return {
     props: {
-      banner: data.banners[0] || null,
+      banner: data || null,
     },
     revalidate: 120,
   };

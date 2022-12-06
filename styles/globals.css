@@ -4,16 +4,16 @@
 
 @layer components {
   .buttom-xs {
-    @apply px-2 h-7 text-xs text-white rounded-full flex items-center justify-center gap-2 select-none font-semibold;
+    @apply px-2 h-7 text-xs text-white rounded-md flex items-center justify-center gap-2 select-none font-semibold;
   }
   .buttom-sm {
-    @apply px-3 h-8 text-sm text-white justify-center rounded-full flex items-center gap-2 select-none font-semibold;
+    @apply px-3 h-8 text-sm text-white justify-center rounded-md flex items-center gap-2 select-none font-semibold;
   }
   .buttom-md {
-    @apply px-4 h-10 text-white rounded-full flex justify-center items-center gap-2 select-none font-semibold;
+    @apply px-4 h-10 text-white rounded-md flex justify-center items-center gap-2 select-none font-semibold;
   }
   .buttom-lg {
-    @apply px-5 h-12 text-lg text-white rounded-full flex justify-center items-center gap-2 select-none font-semibold;
+    @apply px-5 h-12 text-lg text-white rounded-md flex justify-center items-center gap-2 select-none font-semibold;
   }
   .buttom-disabled {
     @apply opacity-40 pointer-events-none select-none;
@@ -84,6 +84,10 @@
     @apply flex w-full items-center gap-2 text-marinho-500 font-semibold h-8 rounded-md hover:bg-marinho-500 hover:text-white active:bg-marinho-600 select-none px-4 cursor-pointer focus:outline-none focus:bg-marinho-500 focus:text-white;
   }
 
+  .menu-items-product-red {
+    @apply flex w-full items-center gap-2 text-red-500 font-semibold h-8 rounded-md hover:bg-red-500 hover:text-white active:bg-red-600 select-none px-4 cursor-pointer focus:outline-none focus:bg-red-500 focus:text-white;
+  }
+
   .menu-items-sim {
     @apply flex w-full lg:w-fit items-center gap-2 text-white font-semibold h-12 rounded-md lg:rounded-none lg:h-14 bg-orange-500 hover:bg-orange-600 active:bg-orange-500 select-none px-4 cursor-pointer focus:outline-none focus:bg-orange-500;
   }
@@ -98,6 +102,10 @@
 
   .Content-product {
     @apply mr-5 w-[280px] pt-2 pb-2 px-2 mx-auto z-50 transition-all bg-white rounded-md shadow-lg border relative overflow-auto focus:outline-none flex flex-col gap-1 max-h-[50vh] lg:max-h-[60vh];
+  }
+
+  .Content-product-client {
+    @apply w-[210px] pt-2 pb-2 px-2 mx-auto z-50 transition-all bg-white rounded-md shadow-lg border relative overflow-auto focus:outline-none flex flex-col gap-1 max-h-[50vh] lg:max-h-[60vh];
   }
 
   .Content[data-state="open"] {
@@ -120,11 +128,11 @@
   }
 
   .card-action-button {
-    @apply w-full flex items-center justify-center text-sm p-1 md:p-2 text-white md:font-semibold cursor-pointer bg-marinho-500 rounded-full mt-1 hover:bg-marinho-700 active:bg-marinho-500 focus:outline-none focus:ring-1 focus:ring-marinho-300 select-none;
+    @apply w-full flex items-center justify-center text-sm p-1 md:p-2 text-white md:font-semibold cursor-pointer bg-marinho-500 rounded-md mt-1 hover:bg-marinho-700 active:bg-marinho-500 focus:outline-none focus:ring-1 focus:ring-marinho-300 select-none;
   }
 
   .card-action-button-orange {
-    @apply w-full flex items-center justify-center text-sm p-1 md:p-2 text-white md:font-semibold cursor-pointer bg-orange-500 rounded-full mt-1 hover:bg-orange-700 active:bg-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-300 select-none gap-2;
+    @apply w-full flex items-center justify-center text-sm p-1 md:p-2 text-white md:font-semibold cursor-pointer bg-orange-500 rounded-md mt-1 hover:bg-orange-700 active:bg-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-300 select-none gap-2;
   }
   .card {
     @apply border shadow rounded-md overflow-hidden h-fit;
@@ -283,7 +291,7 @@
     @apply fixed top-0 right-0 left-0 bottom-0 z-40 bg-transparent flex justify-center items-center outline-none;
   }
   .dialog-body {
-    @apply rounded-md bg-white shadow-2xl w-full;
+    @apply rounded-md bg-white shadow-2xl w-full relative max-h-[95vh] overflow-auto;
   }
   .dialog-body-img {
     @apply rounded-md bg-transparent shadow-2xl w-full overflow-hidden relative bg-white;

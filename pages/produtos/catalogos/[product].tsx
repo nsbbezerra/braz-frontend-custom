@@ -15,14 +15,10 @@ import Header from "../../../components/layout/Header";
 import * as Accordion from "@radix-ui/react-accordion";
 import * as Popover from "@radix-ui/react-popover";
 import { GetStaticPaths, GetStaticProps, NextPage } from "next";
-import { clientQuery } from "../../../lib/urql";
-import {
-  FIND_COLLECTION_INFORMATION,
-  FIND_PRODUCTS_PATH,
-} from "../../../graphql/products";
 import { BannersProps } from "../../../types";
 import Link from "next/link";
 import * as Dialog from "@radix-ui/react-dialog";
+import { api } from "../../../configs";
 
 interface ProductProps {
   id: string;
@@ -35,34 +31,30 @@ type ProductNameProps = {
 
 type ImageProps = {
   id: string;
-  url: string;
+  image: string;
 };
 
 type CategoriesProps = {
   id: string;
   name: string;
-  products: ProductNameProps[];
+  Products: ProductNameProps[];
 };
 
 type CollectionsProps = {
   id: string;
-  product: ProductNameProps;
-  images: ImageProps[];
+  name: string;
+  Catalogs: ImageProps[];
 };
 
 interface Props {
-  banners: BannersProps | null;
-  collections: CollectionsProps | null;
+  banner: BannersProps | null;
+  catalogs: CollectionsProps | null;
   categories: CategoriesProps[];
 }
 
-const Catalogos: NextPage<Props> = ({ collections, categories, banners }) => {
+const Catalogos: NextPage<Props> = ({ catalogs, categories, banner }) => {
   const AccordionApp = () => (
-    <Accordion.Root
-      type="single"
-      className={"Container-accordion"}
-      defaultValue={categories[0].id}
-    >
+    <Accordion.Root type="single" className={"Container-accordion"}>
       {categories.map((cat) => (
         <Accordion.Item
           value={cat.id}
@@ -78,7 +70,7 @@ const Catalogos: NextPage<Props> = ({ collections, categories, banners }) => {
           </Accordion.Header>
           <Accordion.Content className={"Content-accordion"}>
             <div className="flex flex-col gap-1">
-              {cat.products.map((prod) => (
+              {cat.Products.map((prod) => (
                 <div key={prod.id}>
                   <Link href={`/produtos/catalogos/${prod.id}`} passHref>
                     <a className="Content-link-item-accordion">
@@ -105,31 +97,19 @@ const Catalogos: NextPage<Props> = ({ collections, categories, banners }) => {
 
   return (
     <Fragment>
-      <HeadApp
-        title={`Catálogo - ${collections?.product.name} | Braz Camiseteria`}
-      />
+      <HeadApp title={`Catálogo - ${catalogs?.name} | Braz Camiseteria`} />
       <Header />
-      {!banners ? (
+      {!banner ? (
         ""
       ) : (
         <>
-          <div className="w-full relative hidden sm:block">
+          <div className="w-full relative">
             <Image
-              src={banners.desktop.url}
+              src={banner.banner}
               width={1920}
               height={461}
               alt="Braz Multimidia banner"
               layout="responsive"
-            />
-          </div>
-          <div className="w-full relative block sm:hidden">
-            <Image
-              src={banners.mobile.url}
-              alt="Braz Multimidia"
-              layout="responsive"
-              width={550}
-              height={775}
-              objectFit="cover"
             />
           </div>
         </>
@@ -149,10 +129,10 @@ const Catalogos: NextPage<Props> = ({ collections, categories, banners }) => {
             Catálogos
           </a>
           <CaretRight />
-          <Link href={`/produtos/catalogos/${collections?.product.id || ""}`}>
+          <Link href={`/produtos/catalogos/${catalogs?.id || ""}`}>
             <a className="flex items-center gap-2 cursor-pointer hover:underline">
               <TShirt />
-              {collections?.product.name}
+              {catalogs?.name}
             </a>
           </Link>
         </div>
@@ -179,16 +159,16 @@ const Catalogos: NextPage<Props> = ({ collections, categories, banners }) => {
           <div>
             <strong className="heading text-marinho-500 flex items-center gap-3 w-full border-b border-b-marinho-500 pb-1 mb-5">
               <ImageSquare />{" "}
-              <span className="line-clamp-1">{collections?.product.name}</span>
+              <span className="line-clamp-1">{catalogs?.name}</span>
             </strong>
             <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-5">
-              {collections?.images.map((picture) => (
+              {catalogs?.Catalogs.map((picture) => (
                 <div
                   className="w-full relative rounded-md overflow-hidden"
                   key={picture.id}
                 >
                   <Image
-                    src={picture.url}
+                    src={picture.image}
                     width={600}
                     height={600}
                     layout="responsive"
@@ -197,7 +177,7 @@ const Catalogos: NextPage<Props> = ({ collections, categories, banners }) => {
                   <div className="absolute top-0 right-0 left-0 bottom-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 hover:opacity-100 transition-all">
                     <button
                       className="text-gray-400 hover:text-white text-6xl p-2 rounded-2xl active:text-gray-400"
-                      onClick={() => handleImage(picture.url)}
+                      onClick={() => handleImage(picture.image)}
                     >
                       <MagnifyingGlassPlus />
                     </button>
@@ -239,9 +219,9 @@ const Catalogos: NextPage<Props> = ({ collections, categories, banners }) => {
 export default Catalogos;
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const { data } = await clientQuery.query(FIND_PRODUCTS_PATH, {}).toPromise();
+  const { data } = await api.get("/fromProductPagePaths");
 
-  const products: ProductProps[] = data.products;
+  const products: ProductProps[] = data;
 
   const paths = products.map((prod) => {
     return { params: { product: prod.id } };
@@ -256,14 +236,12 @@ export const getStaticPaths: GetStaticPaths = async () => {
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const id = params?.product || "";
 
-  const { data } = await clientQuery
-    .query(FIND_COLLECTION_INFORMATION, { id })
-    .toPromise();
+  const { data } = await api.get(`/findCatalogOfProducts/${id}`);
 
   return {
     props: {
-      banners: data.banners[0] || null,
-      collections: data.collections[0] || null,
+      banner: data.banner || null,
+      catalogs: data.catalog || null,
       categories: data.categories || [],
     },
     revalidate: 60,

@@ -6,6 +6,7 @@ const api = axios.create({
 
 const configs = {
   phone: "5561999116450",
+  companyName: "Braz Camiseteria - Uniformes, Abadás, Jalecos entre outros",
 };
 
 export { configs, api };

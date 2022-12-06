@@ -28,7 +28,6 @@ import CartContext from "../../../context/cart/cart";
 import { nanoid } from "nanoid";
 import Toast from "../../../components/layout/Toast";
 import * as AlertDialog from "@radix-ui/react-alert-dialog";
-import Carousel from "../../../components/layout/Carousel";
 import * as Dialog from "@radix-ui/react-dialog";
 import { api } from "../../../configs";
 
@@ -362,6 +361,12 @@ const Produto: NextPage<Props> = ({ information }) => {
               </div>
             ))}
           </div>
+
+          <Link href={`/produtos/catalogos/${information.product?.id}`}>
+            <a className="buttom-md buttom-yellow cursor-pointer mt-5">
+              Veja o catálogo completo
+            </a>
+          </Link>
         </div>
 
         <Pedidos />
@@ -406,13 +411,10 @@ const Produto: NextPage<Props> = ({ information }) => {
         <Dialog.Portal>
           <Dialog.Overlay className="overlay" />
           <Dialog.Content className="dialog-content p-2">
-            <Dialog.Close
-              className="bg-sky-700 hover:bg-sky-800 rounded-full px-4 h-8 flex items-center justify-center active:bg-sky-700 absolute right-5 top-5 z-50 text-white"
-              onClick={() => setPreview(!preview)}
-            >
-              <X /> Fechar
-            </Dialog.Close>
-            <div className="dialog-body-img max-w-2xl">
+            <div className="dialog-body-img max-w-md sm:max-w-lg">
+              <Dialog.Close className="bg-sky-700 hover:bg-sky-800 rounded-full w-7 h-7 flex items-center justify-center active:bg-sky-700 absolute right-3 top-3 z-10 text-white">
+                <X />
+              </Dialog.Close>
               <div className="z-10">
                 <Image
                   src={url}

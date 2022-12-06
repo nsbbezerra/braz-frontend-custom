@@ -18,10 +18,9 @@ import HeadApp from "../components/layout/Head";
 import Header from "../components/layout/Header";
 import Toast from "../components/layout/Toast";
 import CartContext from "../context/cart/cart";
-import { FIND_CART_BANNER } from "../graphql/indexPage";
-import { clientQuery } from "../lib/urql";
 import { BannersProps } from "../types";
 import { useRouter } from "next/router";
+import { api } from "../configs";
 
 interface Props {
   banner: BannersProps | null;
@@ -38,8 +37,7 @@ const Checkout: NextPage<Props> = ({ banner }) => {
   const { cart, setCart } = useContext(CartContext);
   const [total, setTotal] = useState<number>(0);
   const calcPrice = (price: number) => {
-    let transform = price / 100;
-    return transform.toLocaleString("pt-br", {
+    return parseFloat(String(price)).toLocaleString("pt-br", {
       style: "currency",
       currency: "BRL",
     });
@@ -181,23 +179,13 @@ const Checkout: NextPage<Props> = ({ banner }) => {
         ""
       ) : (
         <>
-          <div className="w-full relative hidden sm:block">
+          <div className="w-full relative">
             <Image
-              src={banner.desktop.url}
+              src={banner.banner}
               width={1920}
               height={461}
               alt="Braz Multimidia banner"
               layout="responsive"
-            />
-          </div>
-          <div className="w-full relative block sm:hidden">
-            <Image
-              src={banner.mobile.url}
-              alt="Braz Multimidia"
-              layout="responsive"
-              width={550}
-              height={775}
-              objectFit="cover"
             />
           </div>
         </>
@@ -364,11 +352,11 @@ const Checkout: NextPage<Props> = ({ banner }) => {
 export default Checkout;
 
 export const getStaticProps: GetStaticProps = async () => {
-  const { data } = await clientQuery.query(FIND_CART_BANNER, {}).toPromise();
+  const { data } = await api.get("/fromCartPageBanner");
 
   return {
     props: {
-      banner: data.banners[0] || null,
+      banner: data || null,
     },
     revalidate: 120,
   };

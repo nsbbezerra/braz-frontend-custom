@@ -1,16 +1,15 @@
 import "../styles/globals.css";
 import type { AppProps } from "next/app";
-import { Provider } from "urql";
-import { clientQuery } from "../lib/urql";
 import GlobalCartContext from "../context/cart";
+import GlobalModalsContext from "../context/modals";
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <Provider value={clientQuery}>
-      <GlobalCartContext>
+    <GlobalCartContext>
+      <GlobalModalsContext>
         <Component {...pageProps} />
-      </GlobalCartContext>
-    </Provider>
+      </GlobalModalsContext>
+    </GlobalCartContext>
   );
 }
 

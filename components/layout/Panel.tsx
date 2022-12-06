@@ -32,7 +32,7 @@ export default function Panel({ images }: Props) {
                           alt="Braz Multimidia"
                           layout="responsive"
                           width={1400}
-                          height={700}
+                          height={550}
                           objectFit="cover"
                         />
                       </div>
@@ -47,7 +47,7 @@ export default function Panel({ images }: Props) {
                       alt="Braz Multimidia"
                       layout="responsive"
                       width={1400}
-                      height={700}
+                      height={550}
                       objectFit="cover"
                     />
                   </div>

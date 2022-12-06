@@ -6,9 +6,10 @@ import Footer from "../components/layout/Footer";
 import HeadApp from "../components/layout/Head";
 import Header from "../components/layout/Header";
 import Panel from "../components/layout/Panel";
-import { api } from "../configs";
+import { api, configs } from "../configs";
 import { ImagesPagesProps } from "../types";
 import { ShieldCheck, Truck, Cardholder, Clock } from "phosphor-react";
+import CardsProduct from "../components/layout/CardProduct";
 
 interface Props {
   information: ImagesPagesProps;
@@ -17,16 +18,13 @@ interface Props {
 const Home: NextPage<Props> = ({ information }) => {
   return (
     <Fragment>
-      <HeadApp
-        title="Braz Camiseteria | Uniforme Empresarial, Uniforme Esportivo, Uniforme
-        Promocional, Abadás"
-      />
+      <HeadApp title={configs.companyName} />
       <Header />
       <Panel images={information.banners || []} />
-      <section className="py-10 container mx-auto px-5 xl:px-0 max-w-6xl">
-        <div className="w-full py-10 flex flex-col items-center text-center">
+      <section className="py-12 container mx-auto px-5 xl:px-0 max-w-6xl">
+        <div className="w-full pb-10 flex flex-col items-center text-center">
           <strong className="text-marinho-500 heading font-bold font-serif">
-            VEJA NOSSOS MODELOS
+            NOSSAS CATEGORIAS DE PRODUTOS
           </strong>
           <span className="text-sm md:text-base">
             Uniformes para diferentes utilidades, escolha o que melhor lhe
@@ -36,9 +34,9 @@ const Home: NextPage<Props> = ({ information }) => {
         <Cards categories={information.categories || []} />
       </section>
 
-      <section className="w-full relative bg-orange-500 bg-cover bg-center bg-no-repeat py-12">
+      <section className="w-full relative bg-marinho-500 bg-cover bg-center bg-no-repeat py-12">
         <div className="container mx-auto px-5 xl:px-0 max-w-6xl">
-          <strong className="w-full block text-marinho-500 text-center heading">
+          <strong className="w-full block text-orange-500 text-center heading">
             VEJA PASSO A PASSO
           </strong>
           <span className="w-full block text-white text-center text-base">
@@ -47,7 +45,7 @@ const Home: NextPage<Props> = ({ information }) => {
 
           <div className="mt-10 grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-5 md:gap-0 ">
             <div className="p-3 flex items-center flex-col relative border-l md:border-l-0">
-              <span className="w-7 h-7 flex items-center justify-center bg-marinho-500 text-white font-semibold rounded-full">
+              <span className="w-7 h-7 flex items-center justify-center bg-orange-500 text-white font-semibold rounded-full">
                 1
               </span>
               <div className="w-[30px] absolute -left-2 top-10 md:hidden">
@@ -73,7 +71,7 @@ const Home: NextPage<Props> = ({ information }) => {
               </span>
             </div>
             <div className="p-3 flex items-center flex-col relative border-l">
-              <span className="w-7 h-7 flex items-center justify-center bg-marinho-500 text-white font-semibold rounded-full">
+              <span className="w-7 h-7 flex items-center justify-center bg-orange-500 text-white font-semibold rounded-full">
                 2
               </span>
               <div className="w-[30px] absolute -left-2 top-10">
@@ -99,7 +97,7 @@ const Home: NextPage<Props> = ({ information }) => {
               </span>
             </div>
             <div className="p-3 flex items-center flex-col relative border-l">
-              <span className="w-7 h-7 flex items-center justify-center bg-marinho-500 text-white font-semibold rounded-full">
+              <span className="w-7 h-7 flex items-center justify-center bg-orange-500 text-white font-semibold rounded-full">
                 3
               </span>
               <div className="w-[30px] absolute -left-2 top-10">
@@ -128,7 +126,7 @@ const Home: NextPage<Props> = ({ information }) => {
               </span>
             </div>
             <div className="p-3 flex items-center flex-col relative border-l">
-              <span className="w-7 h-7 flex items-center justify-center bg-marinho-500 text-white font-semibold rounded-full">
+              <span className="w-7 h-7 flex items-center justify-center bg-orange-500 text-white font-semibold rounded-full">
                 4
               </span>
               <div className="w-[30px] absolute -left-2 top-10">
@@ -154,7 +152,7 @@ const Home: NextPage<Props> = ({ information }) => {
               </span>
             </div>
             <div className="p-3 flex items-center flex-col relative border-t md:border-l col-span-2 sm:col-span-4 md:col-span-1 md:border-t-0 md:mt-0">
-              <span className="w-7 h-7 flex items-center justify-center bg-marinho-500 text-white font-semibold rounded-full">
+              <span className="w-7 h-7 flex items-center justify-center bg-orange-500 text-white font-semibold rounded-full">
                 5
               </span>
               <div className="w-[30px] absolute -left-2 top-10 hidden md:block">
@@ -180,20 +178,29 @@ const Home: NextPage<Props> = ({ information }) => {
         </div>
       </section>
 
-      <section className="container mx-auto px-5 xl:px-0 py-12 grid grid-cols-4 gap-10 max-w-6xl">
-        <div className="flex flex-col justify-center items-center gap-2">
+      <section className="py-12 container mx-auto px-5 xl:px-0 max-w-6xl">
+        <div className="w-full pb-10 flex flex-col items-center text-center">
+          <strong className="text-marinho-500 heading font-bold font-serif">
+            OS MAIS VENDIDOS
+          </strong>
+        </div>
+        <CardsProduct products={information.products || []} />
+      </section>
+
+      <section className="container mx-auto px-5 xl:px-0 pb-12 grid grid-cols-2 md:grid-cols-4 gap-10 max-w-5xl">
+        <div className="flex flex-col justify-center items-center text-center gap-2">
           <ShieldCheck className="text-7xl text-marinho-500" />
           <span>Compra 100% Segura</span>
         </div>
-        <div className="flex flex-col justify-center items-center gap-2">
+        <div className="flex flex-col justify-center items-center text-center gap-2">
           <Truck className="text-7xl text-marinho-500" />
           <span>Entregamos em todo o Brasil</span>
         </div>
-        <div className="flex flex-col justify-center items-center gap-2">
+        <div className="flex flex-col justify-center items-center text-center gap-2">
           <Cardholder className="text-7xl text-marinho-500" />
           <span>Aceitamos todos os cartões</span>
         </div>
-        <div className="flex flex-col justify-center items-center gap-2">
+        <div className="flex flex-col justify-center items-center text-center gap-2">
           <Clock className="text-7xl text-marinho-500" />
           <span>Entrega rápida</span>
         </div>
@@ -213,6 +220,7 @@ export const getStaticProps: GetStaticProps = async () => {
       information: {
         banners: data.banners || [],
         categories: data.categories,
+        products: data.products || [],
       },
     },
     revalidate: 120,
