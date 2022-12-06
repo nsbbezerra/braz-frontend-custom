@@ -1,17 +1,8 @@
 import axios from "axios";
 import { GetStaticProps, NextPage } from "next";
 import Image from "next/image";
-import Link from "next/link";
-import {
-  Leaf,
-  Minus,
-  PaperPlane,
-  Plus,
-  ShoppingCart,
-  Trash,
-} from "phosphor-react";
+import { FloppyDisk, Leaf, ShoppingCart, SignIn, Trash } from "phosphor-react";
 import { Fragment, useContext, useEffect, useState } from "react";
-import ReactInputMask from "react-input-mask";
 import Button from "../components/layout/Button";
 import Footer from "../components/layout/Footer";
 import HeadApp from "../components/layout/Head";
@@ -19,8 +10,9 @@ import Header from "../components/layout/Header";
 import Toast from "../components/layout/Toast";
 import CartContext from "../context/cart/cart";
 import { BannersProps } from "../types";
+import { api, configs } from "../configs";
+import ModalsContext from "../context/modals/modals";
 import { useRouter } from "next/router";
-import { api } from "../configs";
 
 interface Props {
   banner: BannersProps | null;
@@ -32,8 +24,25 @@ interface ToastInfo {
   type: "success" | "info" | "warning" | "error";
 }
 
+interface ClientProps {
+  id: string;
+  name: string;
+  document: string;
+  phone: string;
+  email: string;
+  street: string;
+  number: string;
+  comp: string;
+  district: string;
+  cep: string;
+  city: string;
+  password: string;
+  state: string;
+}
+
 const Checkout: NextPage<Props> = ({ banner }) => {
   const { push } = useRouter();
+  const { modals, setModals } = useContext(ModalsContext);
   const { cart, setCart } = useContext(CartContext);
   const [total, setTotal] = useState<number>(0);
   const calcPrice = (price: number) => {
@@ -43,13 +52,9 @@ const Checkout: NextPage<Props> = ({ banner }) => {
     });
   };
 
-  const [name, setName] = useState<string>("");
-  const [phone, setPhone] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
-  const [city, setCity] = useState<string>("");
-  const [state, setState] = useState<string>("");
   const [information, setInformation] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+  const [client, setClient] = useState<ClientProps | null>(null);
 
   const [toast, setToast] = useState<ToastInfo>({
     title: "",
@@ -63,103 +68,75 @@ const Checkout: NextPage<Props> = ({ banner }) => {
     setCart(result);
   };
 
+  function findClientInfo() {
+    const findClient = localStorage.getItem("client");
+    if (findClient) {
+      setClient(JSON.parse(findClient));
+    } else {
+      setClient(null);
+    }
+  }
+
+  useEffect(() => {
+    findClientInfo();
+  }, [modals]);
+
+  useEffect(() => {
+    findClientInfo();
+  }, []);
+
   useEffect(() => {
     const sum = cart.reduce((a, b) => +a + +b.total, 0);
     setTotal(sum);
   }, [cart]);
 
-  const sendOrder = async () => {
-    if (name === "") {
-      setToast({
-        title: "Atenção",
-        message: "Insira seu nome",
-        type: "warning",
-      });
-      setOpenToast(true);
-      return false;
-    }
-    if (phone === "") {
-      setToast({
-        title: "Atenção",
-        message: "Insira seu telefone",
-        type: "warning",
-      });
-      setOpenToast(true);
-      return false;
-    }
-    if (email === "") {
-      setToast({
-        title: "Atenção",
-        message: "Insira seu email",
-        type: "warning",
-      });
-      setOpenToast(true);
-      return false;
-    }
-    if (city === "") {
-      setToast({
-        title: "Atenção",
-        message: "Insira sua cidade",
-        type: "warning",
-      });
-      setOpenToast(true);
-      return false;
-    }
-    if (state === "") {
-      setToast({
-        title: "Atenção",
-        message: "Insira seu estado",
-        type: "warning",
-      });
-      setOpenToast(true);
-      return false;
-    }
-
-    let order = {
-      name,
-      phone,
-      city,
-      state,
-      information,
-      email,
-      total,
-    };
+  async function CreateOrder() {
     setLoading(true);
+
     try {
-      const { data } = await axios.post("/api/checkout", {
-        order: JSON.stringify(order),
-        items: JSON.stringify(cart),
+      const items = cart.map((cart) => {
+        return {
+          productId: cart.product,
+          sizeId: cart.sizeId,
+          quantity: cart.quantity,
+          total: cart.total,
+          thumbnail: cart.thumbnail,
+          name: cart.name,
+          unity: cart.unity,
+        };
+      });
+      const order = {
+        clientId: client?.id,
+        orderStatus: "payment",
+        paymentStatus: "waiting",
+        observation: information,
+        total: total,
+      };
+      const response = await api.post("/order", {
+        order,
+        items,
       });
       setToast({
-        title: "Sucesso",
-        message: data.message,
         type: "success",
+        message: response.data.message,
+        title: "Sucesso",
       });
       setOpenToast(true);
       setLoading(false);
       setCart([]);
-      push(`/sucesso?order=${data.id}`);
+      push(response.data.url);
     } catch (error) {
       setLoading(false);
       if (axios.isAxiosError(error) && error.message) {
-        let message = error.response?.data.message || "";
         setToast({
-          title: "Erro",
-          message: message,
           type: "error",
-        });
-        setOpenToast(true);
-      } else {
-        let message = (error as Error).message;
-        setToast({
-          title: "Erro",
-          message: message,
-          type: "error",
+          message: error.response?.data.message,
+          title: "Error",
         });
         setOpenToast(true);
       }
     }
-  };
+  }
 
   return (
     <Fragment>
@@ -170,10 +147,7 @@ const Checkout: NextPage<Props> = ({ banner }) => {
         open={openToast}
         scheme={toast.type}
       />
-      <HeadApp
-        title="Checkou | Braz Camiseteria | Uniforme Empresarial, Uniforme Esportivo, Uniforme
-        Promocional, Abadás"
-      />
+      <HeadApp title={`Checkout | ${configs.companyName}`} />
       <Header />
       {!banner ? (
         ""
@@ -215,7 +189,7 @@ const Checkout: NextPage<Props> = ({ banner }) => {
                     width={600}
                     height={600}
                     layout="responsive"
-                    alt="Braz Multimidia"
+                    alt={configs.companyName}
                   />
                 </div>
                 <div>
@@ -247,81 +221,120 @@ const Checkout: NextPage<Props> = ({ banner }) => {
         )}
 
         <div className="bg-gray-50 rounded-md py-3 px-5 mt-5 shadow">
-          <span className="text-2xl font-bold">Insira seus dados</span>
+          {!client ? (
+            <>
+              <h3 className="text-xl mb-2">
+                Não encontramos seus dados, escolha uma opção abaixo:
+              </h3>
+              <div className="grid grid-cols-2 divide-x">
+                <div className="pr-3">
+                  <Button
+                    buttonSize="lg"
+                    isFullSize
+                    onClick={() =>
+                      setModals({
+                        login: true,
+                        register: false,
+                      })
+                    }
+                  >
+                    <SignIn /> Login
+                  </Button>
+                </div>
+                <div className="pl-3">
+                  <Button
+                    buttonSize="lg"
+                    isFullSize
+                    scheme="warning"
+                    onClick={() =>
+                      setModals({
+                        login: false,
+                        register: true,
+                      })
+                    }
+                  >
+                    <FloppyDisk /> Cadastre-se
+                  </Button>
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <span className="text-2xl font-bold">Meus Dados</span>
+              <div className="grid grid-cols-3 gap-3">
+                <div className="col-span-2">
+                  <label htmlFor="name" className="block">
+                    Seu nome <span className="text-red-600">*</span>
+                  </label>
+                  <input
+                    id="name"
+                    className="border h-10 px-3 rounded-md focus:outline-none focus:ring-2 focus:ring-marinho-500 w-full"
+                    value={client.name}
+                    readOnly
+                  />
+                </div>
+                <div>
+                  <label htmlFor="phone" className="block">
+                    Seu telefone <span className="text-red-600">*</span>
+                  </label>
+                  <input
+                    id="phone"
+                    className="border h-10 px-3 rounded-md focus:outline-none focus:ring-2 focus:ring-marinho-500 w-full"
+                    value={client.phone}
+                    readOnly
+                  />
+                </div>
+              </div>
 
-          <div className="grid grid-cols-3 gap-3">
-            <div className="col-span-2">
-              <label htmlFor="name" className="block">
-                Seu nome <span className="text-red-600">*</span>
-              </label>
-              <input
-                id="name"
-                className="border h-10 px-3 rounded-md focus:outline-none focus:ring-2 focus:ring-marinho-500 w-full"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-            </div>
-            <div>
-              <label htmlFor="phone" className="block">
-                Seu whatsapp <span className="text-red-600">*</span>
-              </label>
-              <ReactInputMask
-                mask="(99) 99999-9999"
-                id="phone"
-                className="border h-10 px-3 rounded-md focus:outline-none focus:ring-2 focus:ring-marinho-500 w-full"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-3 mt-1">
-            <div>
-              <label htmlFor="email" className="block">
-                Seu email <span className="text-red-600">*</span>
-              </label>
-              <input
-                id="email"
-                className="border h-10 px-3 rounded-md focus:outline-none focus:ring-2 focus:ring-marinho-500 w-full"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div>
-              <label htmlFor="city" className="block">
-                Sua cidade <span className="text-red-600">*</span>
-              </label>
-              <input
-                id="city"
-                className="border h-10 px-3 rounded-md focus:outline-none focus:ring-2 focus:ring-marinho-500 w-full"
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-              />
-            </div>
-            <div>
-              <label htmlFor="state" className="block">
-                Estado <span className="text-red-600">*</span>
-              </label>
-              <input
-                id="state"
-                className="border h-10 px-3 rounded-md focus:outline-none focus:ring-2 focus:ring-marinho-500 w-full"
-                value={state}
-                onChange={(e) => setState(e.target.value)}
-              />
-            </div>
-          </div>
-          <div className="mt-1">
-            <label htmlFor="state" className="block">
-              Observações
-            </label>
-            <textarea
-              id="state"
-              className="border p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-marinho-500 w-full resize-none"
-              rows={4}
-              value={information}
-              onChange={(e) => setInformation(e.target.value)}
-            />
-          </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-3 mt-1">
+                <div>
+                  <label htmlFor="email" className="block">
+                    Seu email <span className="text-red-600">*</span>
+                  </label>
+                  <input
+                    id="email"
+                    className="border h-10 px-3 rounded-md focus:outline-none focus:ring-2 focus:ring-marinho-500 w-full"
+                    value={client.email}
+                    readOnly
+                  />
+                </div>
+                <div>
+                  <label htmlFor="city" className="block">
+                    Sua cidade <span className="text-red-600">*</span>
+                  </label>
+                  <input
+                    id="city"
+                    className="border h-10 px-3 rounded-md focus:outline-none focus:ring-2 focus:ring-marinho-500 w-full"
+                    value={client.city}
+                    readOnly
+                  />
+                </div>
+                <div>
+                  <label htmlFor="state" className="block">
+                    Estado <span className="text-red-600">*</span>
+                  </label>
+                  <input
+                    id="state"
+                    className="border h-10 px-3 rounded-md focus:outline-none focus:ring-2 focus:ring-marinho-500 w-full"
+                    value={client.state}
+                    readOnly
+                  />
+                </div>
+              </div>
+              <div className="mt-1">
+                <label htmlFor="state" className="block">
+                  Informações Adicionais
+                </label>
+                <textarea
+                  id="state"
+                  className="border p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-marinho-500 w-full resize-none"
+                  rows={4}
+                  value={information}
+                  onChange={(e) => setInformation(e.target.value)}
+                />
+              </div>
+            </>
+          )}
         </div>
 
         <div className="bg-gray-50 rounded-md py-3 px-5 mt-5 mb-10 shadow">
@@ -335,9 +348,10 @@ const Checkout: NextPage<Props> = ({ banner }) => {
                 buttonSize="lg"
                 isFullSize
                 isLoading={loading}
-                onClick={() => sendOrder()}
+                isDisabled={!client || cart.length === 0}
+                onClick={() => CreateOrder()}
               >
-                <PaperPlane /> Enviar pedido
+                <ShoppingCart /> Finalizar Compra
               </Button>
             </div>
           </div>

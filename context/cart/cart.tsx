@@ -8,7 +8,9 @@ interface Cart {
   name: string;
   quantity: number;
   total: number;
+  unity: number;
   size: string;
+  sizeId: string;
 }
 
 type PropsCartContext = {

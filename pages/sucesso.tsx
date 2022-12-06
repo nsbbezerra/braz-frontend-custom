@@ -1,19 +1,23 @@
 import {
+  CircleNotch,
   CircleWavyCheck,
   Copy,
+  House,
   ShoppingBag,
   WhatsappLogo,
 } from "phosphor-react";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import Footer from "../components/layout/Footer";
 import HeadApp from "../components/layout/Head";
 import Header from "../components/layout/Header";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { configs } from "../configs";
+import { api, configs } from "../configs";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import Toast from "../components/layout/Toast";
 import Button from "../components/layout/Button";
+import Image from "next/image";
+import axios from "axios";
 
 interface ToastInfo {
   title: string;
@@ -21,9 +25,61 @@ interface ToastInfo {
   type: "success" | "info" | "warning" | "error";
 }
 
+type ClientProps = {
+  id: string;
+  name: string;
+};
+
+type CategoryProps = {
+  id: string;
+  name: string;
+};
+
+type ProductProps = {
+  id: string;
+  name: string;
+  thumbnail: string;
+  category: CategoryProps;
+};
+
+type SizeProps = {
+  id: string;
+  size: string;
+};
+
+type OrderItemsProps = {
+  id: string;
+  quantity: number;
+  product: ProductProps;
+  size: SizeProps;
+  total: number;
+};
+
+interface OrderProps {
+  id: string;
+  checkoutId?: string;
+  createdAt: Date;
+  client: ClientProps;
+  observation: string;
+  orderStatus:
+    | "payment"
+    | "design"
+    | "production"
+    | "packing"
+    | "shipping"
+    | "finish";
+  paymentStatus: "waiting" | "paidOut" | "refused" | "cancel";
+  OrderItems: OrderItemsProps[];
+  total: number;
+}
+
+type PaymentStatusProps = {
+  status: "paid" | "unpaid" | "no_payment_required";
+};
+
 export default function Sucesso() {
   const { query } = useRouter();
-  const { order } = query;
+  const { order, status } = query;
 
   const [toast, setToast] = useState<ToastInfo>({
     title: "",
@@ -31,14 +87,54 @@ export default function Sucesso() {
     type: "info",
   });
   const [openToast, setOpenToast] = useState<boolean>(false);
+  const [myOrder, setMyOrder] = useState<OrderProps | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [paymentStatus, setPaymentStatus] = useState<PaymentStatusProps>({
+    status: "no_payment_required",
+  });
 
-  const handleCopy = () => {
-    setToast({
-      title: "Informação",
-      message: `O valor: ${order} foi copiado para a área de transferência`,
-      type: "info",
+  async function findOrderInformation(id: string) {
+    setLoading(true);
+    try {
+      const { data } = await api.get(`/order/${id}`);
+      setMyOrder(data.order);
+      setPaymentStatus({
+        status: data.paymentStatus,
+      });
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      if (axios.isAxiosError(error) && error.message) {
+        setToast({
+          type: "error",
+          message: error.response?.data.message,
+          title: "Erro",
+        });
+        setOpenToast(true);
+      }
+    }
+  }
+
+  useEffect(() => {
+    if (order) {
+      findOrderInformation(String(order));
+    }
+  }, [order]);
+
+  function formateDate(date: Date) {
+    const initialDate = new Date(date);
+    const day = initialDate.getDate();
+    const month = initialDate.toLocaleString("pt-br", { month: "long" });
+    const year = initialDate.getFullYear();
+
+    return `${day} de ${month} de ${year}`;
+  }
+
+  const calcPrice = (price: number) => {
+    return parseFloat(String(price)).toLocaleString("pt-br", {
+      style: "currency",
+      currency: "BRL",
     });
-    setOpenToast(true);
   };
 
   return (
@@ -50,10 +146,7 @@ export default function Sucesso() {
         open={openToast}
         scheme={toast.type}
       />
-      <HeadApp
-        title="Braz Camiseteria | Uniforme Empresarial, Uniforme Esportivo, Uniforme
-        Promocional, Abadás"
-      />
+      <HeadApp title={configs.companyName} />
       <Header />
       <div className="bg-gradient-to-b h-52 from-green-400 to-green-700 flex justify-center items-center flex-col px-5 text-white text-center">
         <CircleWavyCheck className="text-7xl" />
@@ -61,54 +154,128 @@ export default function Sucesso() {
       </div>
 
       <div className="container mx-auto px-5 xl:px-0 max-w-3xl mt-10 mb-10">
-        <div className="flex items-center justify-center flex-col text-2xl text-center">
-          <span>Este é o número do seu pedido:</span>
-          <strong className="flex items-center gap-3 text-3xl text-orange-500">
-            {order}{" "}
-            <CopyToClipboard text={order as string} onCopy={() => handleCopy()}>
-              <button className="rounded-full bg-gray-200 w-7 h-7 text-base flex items-center justify-center text-gray-900">
-                <Copy />
-              </button>
-            </CopyToClipboard>
-          </strong>
+        {status === "completo" && (
+          <>
+            {loading ? (
+              <div className="p-10 flex justify-center items-center">
+                <CircleNotch className="text-6xl animate-spin" />
+              </div>
+            ) : (
+              <>
+                {order && (
+                  <div className="rounded-md border shadow overflow-hidden">
+                    <div className="flex justify-center items-center bg-zinc-50 p-2">
+                      <div className="w-52">
+                        <Image
+                          src="/img/logo.svg"
+                          width={115}
+                          height={50}
+                          alt={configs.companyName}
+                          layout="responsive"
+                        />
+                      </div>
+                    </div>
 
-          <span className="mt-10">
-            Agora copie o número do seu pedido e entre em contato conosco para
-            proseguirmos para o pagamento, ou clique no botão abaixo para
-            iniciar o atendimento via Whatsapp
-          </span>
+                    <div className="p-4">
+                      <h1 className="text-xl font-semibold">
+                        Olá {myOrder?.client.name},
+                      </h1>
+                      <span className="block mb-3">
+                        Seu pedido foi confirmado e estamos iniciando a
+                        preparação, avisaremos quando cada etapa for concluída,
+                        você pode acompanhar o status também aqui pelo site na
+                        seção <strong>Minhas Compras</strong> na Área do
+                        Cliente.
+                      </span>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 sm:divide-x border-y py-3 mb-3">
+                        <div className="flex flex-col">
+                          <span className="text-zinc-600">Data:</span>
+                          <span className="font-semibold">
+                            {formateDate(myOrder?.createdAt as Date)}
+                          </span>
+                        </div>
+                        <div className="flex flex-col sm:pl-4">
+                          <span className="text-zinc-600">Identificação:</span>
+                          <span className="font-semibold">{myOrder?.id}</span>
+                        </div>
+                        <div className="flex flex-col sm:pl-4">
+                          <span className="text-zinc-600">Pagamento:</span>
+                          <span
+                            className={`font-semibold ${
+                              (paymentStatus.status === "no_payment_required" &&
+                                "text-zinc-900") ||
+                              (paymentStatus.status === "unpaid" &&
+                                "text-red-600") ||
+                              (paymentStatus.status === "paid" &&
+                                "text-green-600")
+                            }`}
+                          >
+                            {(paymentStatus.status === "no_payment_required" &&
+                              "Não requerido") ||
+                              (paymentStatus.status === "unpaid" &&
+                                "Não pago") ||
+                              (paymentStatus.status === "paid" && "Pago")}
+                          </span>
+                        </div>
+                      </div>
 
-          <Link
-            href={`https://api.whatsapp.com/send?phone=${configs.phone}&text=Ola realizei meu pedido com o numero: ${order}`}
-            passHref
-          >
-            <a
-              className="mt-5 bg-green-600 text-white rounded-full py-3 px-5 flex items-center gap-4 cursor-pointer hover:bg-green-700 active:bg-green-600 select-none"
-              target={"_blank"}
-            >
-              <WhatsappLogo />
-              Fale conosco agora
-            </a>
+                      <div className="grid grid-cols-1 gap-5 mb-3">
+                        {myOrder?.OrderItems.map((item) => (
+                          <div
+                            className="grid grid-cols-[60px_1fr] sm:grid-cols-[100px_1fr] gap-3 sm:gap-10"
+                            key={item.id}
+                          >
+                            <div className="w-full">
+                              <Image
+                                src={item.product.thumbnail}
+                                width={600}
+                                height={600}
+                                layout="responsive"
+                                alt={configs.companyName}
+                              />
+                            </div>
+                            <div className="flex justify-between">
+                              <div>
+                                <strong>{item.product.name}</strong>
+                                <p>Tamanho: {item.size.size}</p>
+                                <p>Categoria: {item.product.category.name}</p>
+                                <p>Quantidade: {item.quantity}</p>
+                              </div>
+                              <div className="text-right text-lg">
+                                {calcPrice(item.total)}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="flex justify-between items-center py-5 border-y text-xl font-semibold mb-3">
+                        <span>Total</span>
+                        <span>{calcPrice(Number(myOrder?.total))}</span>
+                      </div>
+
+                      <p>
+                        Fique atento ao seu telefone ou email, entraremos em
+                        contato para a aprovação do design e para passarmos as
+                        informações do envio do seu pedido.
+                      </p>
+                      <p>Obrigado pela preferência.</p>
+                      <strong> {configs.companyName}</strong>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </>
+        )}
+
+        <div className="flex justify-center mt-10">
+          <Link href={"/"}>
+            <Button scheme="success">
+              <House />
+              Ir ao início
+            </Button>
           </Link>
-
-          <span className="mt-10">
-            <strong>
-              É de suma importância você guardar o número do pedido
-            </strong>
-            , para poder verificar posteriormente o status e os detalhes do
-            mesmo. Caso queira verificar os detalhes clique no botão abaixo:
-          </span>
-
-          <div className="flex justify-center mt-5">
-            <Link href={`/minhascompras?order=${order}`}>
-              <a>
-                <Button buttonSize="lg">
-                  <ShoppingBag />
-                  Ver compra
-                </Button>
-              </a>
-            </Link>
-          </div>
         </div>
       </div>
       <Footer />

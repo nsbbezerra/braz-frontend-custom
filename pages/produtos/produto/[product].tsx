@@ -17,11 +17,6 @@ import HeadApp from "../../../components/layout/Head";
 import Header from "../../../components/layout/Header";
 import * as Tabs from "@radix-ui/react-tabs";
 import Pedidos from "../../../components/layout/Pedidos";
-import { clientQuery } from "../../../lib/urql";
-import {
-  FIND_PRODUCTS_PATH,
-  FIND_PRODUCT_INFORMATION,
-} from "../../../graphql/products";
 import { ProductInformationPageProps } from "../../../types";
 import Link from "next/link";
 import CartContext from "../../../context/cart/cart";
@@ -58,6 +53,7 @@ const Produto: NextPage<Props> = ({ information }) => {
   const [quantity, setQuantity] = useState<number>(1);
   const [price, setPrice] = useState<number>(0);
   const [size, setSize] = useState<string>("");
+  const [sizeId, setSizeId] = useState<string>("");
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [preview, setPreview] = useState<boolean>(false);
   const [url, setUrl] = useState<string>("");
@@ -112,6 +108,8 @@ const Produto: NextPage<Props> = ({ information }) => {
         size: size,
         thumbnail: information.product?.thumbnail || "",
         total: price,
+        unity: Number(information.product?.price),
+        sizeId: sizeId,
       },
     ]);
     setIsDialogOpen(true);
@@ -122,6 +120,12 @@ const Produto: NextPage<Props> = ({ information }) => {
   const handleImage = (ref: string) => {
     setUrl(ref);
     setPreview(true);
+  };
+
+  const handleSize = (id: string) => {
+    let name = information.product?.Sizes.find((obj) => obj.id === id);
+    setSize(String(name?.size));
+    setSizeId(id);
   };
 
   return (
@@ -215,11 +219,11 @@ const Produto: NextPage<Props> = ({ information }) => {
                     className="border h-12 px-3 rounded-md focus:outline-none focus:ring-2 focus:ring-marinho-500 w-full bg-transparent"
                     placeholder="Selecione um tamanho"
                     value={size}
-                    onChange={(e) => setSize(e.target.value)}
+                    onChange={(e) => handleSize(e.target.value)}
                   >
                     <option value={""}>Selecione um tamanho</option>
                     {information.product?.Sizes.map((size) => (
-                      <option value={size.size} key={size.id}>
+                      <option value={size.id} key={size.id}>
                         {size.size}
                       </option>
                     ))}
