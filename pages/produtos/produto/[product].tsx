@@ -184,7 +184,7 @@ const Produto: NextPage<Props> = ({ information }) => {
             />
           </div>
 
-          <div>
+          <div className="w-full">
             <strong className="heading text-marinho-500 block">
               {information.product?.name}
             </strong>
@@ -382,7 +382,7 @@ const Produto: NextPage<Props> = ({ information }) => {
         <AlertDialog.Trigger asChild />
         <AlertDialog.Portal>
           <AlertDialog.Overlay className="fixed top-0 bottom-0 left-0 right-0 bg-black bg-opacity-60 z-40" />
-          <AlertDialog.Content className="fixed w-[80%] left-[10%] right-[10%] sm:w-[50%] sm:left-[25%] sm:right-[25%] md:w-[40%] md:left-[30%] md:right-[30%] lg:w-[30%] bg-white shadow-2xl rounded-md top-[15%] z-50 lg:left-[35%] lg:right-[35%] flex items-center justify-center flex-col p-5 gap-2">
+          <AlertDialog.Content className="fixed w-[80%] left-[10%] right-[10%] sm:w-[50%] sm:left-[25%] sm:right-[25%] md:w-[40%] md:left-[30%] md:right-[30%] bg-white shadow-2xl rounded-md top-[15%] z-50 flex items-center justify-center flex-col p-5 gap-2">
             <AlertDialog.Title className="text-white px-4 py-3 font-semibold text-4xl w-20 h-20 flex items-center justify-center bg-green-600 rounded-full">
               <Check />
             </AlertDialog.Title>
