@@ -18,7 +18,7 @@ import Pedidos from "../../components/layout/Pedidos";
 
 import { BannersProps, CategoriesProps } from "../../types";
 import Link from "next/link";
-import { api } from "../../configs";
+import { baseURL } from "../../configs";
 import { useRouter } from "next/router";
 
 interface Props {
@@ -139,8 +139,8 @@ const Produtos: NextPage<Props> = ({ banner, categories, category }) => {
 export default Produtos;
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const { data } = await api.get("/fromCategoriesPagePaths");
-
+  const response = await fetch(`${baseURL}/fromCategoriesPagePaths`);
+  const data = await response.json();
   const categories: CategoriesProps[] = data;
 
   const paths = categories.map((cat) => {
@@ -155,8 +155,8 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const id = params?.product || "";
-  const { data } = await api.get(`/fromCategoriesPage/${id}`);
-
+  const response = await fetch(`${baseURL}/fromCategoriesPage/${id}`);
+  const data = await response.json();
   return {
     props: {
       categories: data.categories || null,

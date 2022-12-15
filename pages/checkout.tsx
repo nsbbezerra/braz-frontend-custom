@@ -10,7 +10,7 @@ import Header from "../components/layout/Header";
 import Toast from "../components/layout/Toast";
 import CartContext from "../context/cart/cart";
 import { BannersProps } from "../types";
-import { api, configs } from "../configs";
+import { api, baseURL, configs } from "../configs";
 import ModalsContext from "../context/modals/modals";
 import { useRouter } from "next/router";
 
@@ -369,7 +369,8 @@ const Checkout: NextPage<Props> = ({ banner }) => {
 export default Checkout;
 
 export const getStaticProps: GetStaticProps = async () => {
-  const { data } = await api.get("/fromCartPageBanner");
+  const response = await fetch(`${baseURL}/fromCartPageBanner`);
+  const data = await response.json();
 
   return {
     props: {

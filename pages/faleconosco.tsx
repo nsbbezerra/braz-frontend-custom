@@ -5,7 +5,7 @@ import { Fragment } from "react";
 import Footer from "../components/layout/Footer";
 import HeadApp from "../components/layout/Head";
 import Header from "../components/layout/Header";
-import { api } from "../configs";
+import { baseURL } from "../configs";
 import { BannersProps } from "../types";
 
 interface Props {
@@ -80,7 +80,8 @@ const Contact: NextPage<Props> = ({ banner }) => {
 export default Contact;
 
 export const getStaticProps: GetStaticProps = async () => {
-  const { data } = await api.get("/fromOthersPageBanner");
+  const response = await fetch(`${baseURL}/fromOthersPageBanner`);
+  const data = await response.json();
 
   return {
     props: {

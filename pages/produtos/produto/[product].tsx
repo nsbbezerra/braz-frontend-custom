@@ -4,7 +4,6 @@ import {
   CaretRight,
   Check,
   House,
-  MagnifyingGlassPlus,
   ShoppingBag,
   ShoppingCart,
   Tag,
@@ -25,7 +24,7 @@ import { nanoid } from "nanoid";
 import Toast from "../../../components/layout/Toast";
 import * as AlertDialog from "@radix-ui/react-alert-dialog";
 import * as Dialog from "@radix-ui/react-dialog";
-import { api } from "../../../configs";
+import { baseURL } from "../../../configs";
 
 interface ProductProps {
   id: string;
@@ -443,8 +442,8 @@ const Produto: NextPage<Props> = ({ information }) => {
 export default Produto;
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const { data } = await api.get("/fromProductPagePaths");
-
+  const response = await fetch(`${baseURL}/fromProductPagePaths`);
+  const data = await response.json();
   const products: ProductProps[] = data;
 
   const paths = products.map((prod) => {
@@ -460,8 +459,8 @@ export const getStaticPaths: GetStaticPaths = async () => {
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const id = params?.product || "";
 
-  const { data } = await api.get(`/fromProductPage/${id}`);
-
+  const response = await fetch(`${baseURL}/fromProductPage/${id}`);
+  const data = await response.json();
   return {
     props: {
       information: {

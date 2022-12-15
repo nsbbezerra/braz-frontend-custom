@@ -6,9 +6,8 @@ import Footer from "../components/layout/Footer";
 import HeadApp from "../components/layout/Head";
 import Header from "../components/layout/Header";
 import Panel from "../components/layout/Panel";
-import { api, configs } from "../configs";
+import { baseURL, configs } from "../configs";
 import { ImagesPagesProps } from "../types";
-import { ShieldCheck, Truck, Cardholder, Clock } from "phosphor-react";
 import CardsProduct from "../components/layout/CardProduct";
 
 interface Props {
@@ -276,7 +275,9 @@ const Home: NextPage<Props> = ({ information }) => {
 export default Home;
 
 export const getStaticProps: GetStaticProps = async () => {
-  const { data } = await api.get("/fromIndexPage");
+  const result = await fetch(`${baseURL}/fromIndexPage`);
+  const response = await result.json();
+  const data = response;
   return {
     props: {
       information: {

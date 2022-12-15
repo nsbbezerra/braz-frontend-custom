@@ -19,7 +19,7 @@ import { GetStaticPaths, GetStaticProps, NextPage } from "next";
 import { BannersProps } from "../../../types";
 import Link from "next/link";
 import * as Dialog from "@radix-ui/react-dialog";
-import { api } from "../../../configs";
+import { api, baseURL } from "../../../configs";
 
 interface ProductProps {
   id: string;
@@ -223,8 +223,8 @@ const Catalogos: NextPage<Props> = ({ catalogs, categories, banner }) => {
 export default Catalogos;
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const { data } = await api.get("/fromProductPagePaths");
-
+  const response = await fetch(`${baseURL}/fromProductPagePaths`);
+  const data = await response.json();
   const products: ProductProps[] = data;
 
   const paths = products.map((prod) => {
@@ -240,8 +240,8 @@ export const getStaticPaths: GetStaticPaths = async () => {
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const id = params?.product || "";
 
-  const { data } = await api.get(`/findCatalogOfProducts/${id}`);
-
+  const response = await fetch(`${baseURL}/findCatalogOfProducts/${id}`);
+  const data = await response.json();
   return {
     props: {
       banner: data.banner || null,

@@ -1,7 +1,9 @@
 import axios from "axios";
 
+const baseURL = "https://tshirt.nkinfo.com.br";
+
 const api = axios.create({
-  baseURL: "https://tshirt.nkinfo.com.br",
+  baseURL,
 });
 
 const configs = {
@@ -9,4 +11,4 @@ const configs = {
   companyName: "Braz Camiseteria - Uniformes, Abadás, Jalecos entre outros",
 };
 
-export { configs, api };
+export { configs, api, baseURL };
