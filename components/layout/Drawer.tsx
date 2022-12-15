@@ -4,6 +4,7 @@ import { Leaf, ShoppingBag, ShoppingCart, Trash, X } from "phosphor-react";
 import { useContext, useEffect, useState } from "react";
 import CartContext from "../../context/cart/cart";
 import Button from "./Button";
+
 interface Cart {
   id: string;
   category: string;
@@ -12,7 +13,9 @@ interface Cart {
   name: string;
   quantity: number;
   total: number;
+  unity: number;
   size: string;
+  sizeId: string;
 }
 
 interface Props {
