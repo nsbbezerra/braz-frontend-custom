@@ -7,6 +7,7 @@ import {
   MagnifyingGlassPlus,
   ShoppingBag,
   ShoppingCart,
+  Tag,
   TShirt,
   X,
 } from "phosphor-react";
@@ -140,7 +141,10 @@ const Produto: NextPage<Props> = ({ information }) => {
       <HeadApp title={`${information.product?.name} | Braz Camiseteria`} />
       <Header />
       {!information.banner ? (
-        ""
+        <div className="bg-gradient-to-b h-52 from-marinho-500 to-marinho-900 flex justify-center items-center flex-col px-5 text-white text-center">
+          <Tag className="text-7xl" />
+          <strong className="text-3xl mt-2">PRODUTO</strong>
+        </div>
       ) : (
         <>
           <div className="w-full relative">
@@ -218,7 +222,7 @@ const Produto: NextPage<Props> = ({ information }) => {
                   <select
                     className="border h-12 px-3 rounded-md focus:outline-none focus:ring-2 focus:ring-marinho-500 w-full bg-transparent"
                     placeholder="Selecione um tamanho"
-                    value={size}
+                    value={sizeId}
                     onChange={(e) => handleSize(e.target.value)}
                   >
                     <option value={""}>Selecione um tamanho</option>

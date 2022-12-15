@@ -46,6 +46,7 @@ interface ToastInfo {
 }
 
 interface ClientProps {
+  id: string;
   name: string;
   document: string;
   phone: string;
@@ -206,6 +207,7 @@ function Header() {
 
   const handleRegister = useFormik({
     initialValues: {
+      id: "",
       name: "",
       document: "",
       phone: "",
@@ -362,10 +364,14 @@ function Header() {
                     <AddressBook />
                     Meus Dados
                   </a>
-                  <a className="menu-items-product uppercase">
-                    <ShoppingCart />
-                    Minhas Compras
-                  </a>
+                  <Link
+                    href={`/areadocliente/minhascompras?client=${client.id}`}
+                  >
+                    <a className="menu-items-product uppercase">
+                      <ShoppingCart />
+                      Minhas Compras
+                    </a>
+                  </Link>
                   <div className="h-1 border-b" />
                   <button
                     className="menu-items-product-red button-red uppercase"

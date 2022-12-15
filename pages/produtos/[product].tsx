@@ -64,7 +64,10 @@ const Produtos: NextPage<Props> = ({ banner, categories, category }) => {
       <HeadApp title={`${category.name} | Braz Camiseteria`} />
       <Header />
       {!banner ? (
-        ""
+        <div className="bg-gradient-to-b h-52 from-marinho-500 to-marinho-900 flex justify-center items-center flex-col px-5 text-white text-center">
+          <Tag className="text-7xl" />
+          <strong className="text-3xl mt-2">PRODUTOS</strong>
+        </div>
       ) : (
         <>
           <div className="w-full relative">

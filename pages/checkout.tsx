@@ -150,7 +150,10 @@ const Checkout: NextPage<Props> = ({ banner }) => {
       <HeadApp title={`Checkout | ${configs.companyName}`} />
       <Header />
       {!banner ? (
-        ""
+        <div className="bg-gradient-to-b h-52 from-marinho-500 to-marinho-900 flex justify-center items-center flex-col px-5 text-white text-center">
+          <ShoppingCart className="text-7xl" />
+          <strong className="text-3xl mt-2">CHECKOUT</strong>
+        </div>
       ) : (
         <>
           <div className="w-full relative">

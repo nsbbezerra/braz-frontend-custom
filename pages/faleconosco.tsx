@@ -1,6 +1,6 @@
 import { GetStaticProps, NextPage } from "next";
 import Image from "next/image";
-import { Clock, Envelope, WhatsappLogo } from "phosphor-react";
+import { Clock, Envelope, Phone, WhatsappLogo } from "phosphor-react";
 import { Fragment } from "react";
 import Footer from "../components/layout/Footer";
 import HeadApp from "../components/layout/Head";
@@ -21,7 +21,10 @@ const Contact: NextPage<Props> = ({ banner }) => {
       />
       <Header />
       {!banner ? (
-        ""
+        <div className="bg-gradient-to-b h-52 from-marinho-500 to-marinho-900 flex justify-center items-center flex-col px-5 text-white text-center">
+          <Phone className="text-7xl" />
+          <strong className="text-3xl mt-2">FALE CONOSCO</strong>
+        </div>
       ) : (
         <>
           <div className="w-full relative">
